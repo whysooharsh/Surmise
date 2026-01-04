@@ -2,26 +2,21 @@ require('dotenv').config();
 const express = require("express");
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const mongoose = require('mongoose');
 const path = require('path');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
 const authRoutes = require('./Routes/authRoute');
 const blogRoutes = require('./Routes/blogRoute');
 const connectDB = require('./config/db');
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
 
-
 const allowedOrigins = process.env.ALLOWED_ORIGINS 
   ? process.env.ALLOWED_ORIGINS.split(',') 
   : [
-      'https://surmise.vercel.app/',
+      'https://surmise.vercel.app',
       'http://localhost:5173',
       'http://localhost:3000'            
     ];
@@ -31,12 +26,21 @@ app.use(cors({
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin) || origin.includes('vercel.app') || origin.includes('localhost')) {
+    const normalizedOrigin = origin?.replace(/\/$/, '');
+    const normalizedAllowedOrigins = allowedOrigins.map(o => o.replace(/\/$/, ''));
+
+    if (normalizedAllowedOrigins.includes(normalizedOrigin) || 
+        normalizedOrigin?.includes('vercel.app') || 
+        normalizedOrigin?.includes('localhost')) {
       callback(null, true);
     } else {
+      console.log('CORS blocked origin:', origin);
       callback(new Error('Not allowed by CORS'));
     }
-  }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['set-cookie']
 }));
 
 

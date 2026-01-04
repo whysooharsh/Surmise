@@ -30,15 +30,21 @@ module.exports = {
             if (passOk) {
                 jwt.sign({ username: usernameToCheck, id: userDoc._id }, secret, {}, (err, token) => {
                     if (err) throw err;
+                    
+                    // Set cookie for same-domain scenarios
                     res.cookie('token', token, {
                         httpOnly: true,
                         secure: process.env.NODE_ENV === 'production',
                         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
                         domain: process.env.NODE_ENV === 'production' ? undefined : undefined,
                         maxAge: 24 * 60 * 60 * 1000 
-                    }).json({
+                    });
+                    
+                    // Also send token in response for cross-domain scenarios
+                    res.json({
                         id: userDoc._id,
                         username: usernameToCheck,
+                        token: token // Include token in response
                     });
                 });
             } else {
@@ -71,9 +77,17 @@ module.exports = {
 
     profile: (req, res) => {
         try {
-            const { token } = req.cookies;
+            // Check for token in cookies first (for same-domain), then Authorization header (for cross-domain)
+            let token = req.cookies.token;
+            
+            if (!token) {
+                const authHeader = req.headers.authorization;
+                if (authHeader && authHeader.startsWith('Bearer ')) {
+                    token = authHeader.substring(7);
+                }
+            }
+            
             console.log('Profile request - Token exists:', !!token);
-            console.log('Profile request - Cookies:', Object.keys(req.cookies));
             console.log('Profile request - Origin:', req.get('Origin'));
             
             if (!token) return res.status(401).json({ message: "NOT LOGIN" });

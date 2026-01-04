@@ -4,6 +4,7 @@ import IndexPage from "./Pages/IndexPage.jsx";
 import LoginPage from "./Pages/LoginPage.jsx";
 import RegisterPage from "./Pages/RegisterPage.jsx";
 import {UserContextProvider} from "./UserContext.jsx";
+import {ThemeProvider} from "./ThemeContext.jsx";
 import CreatePost from './Pages/CreatePost.jsx';
 import PostPage from './Pages/PostPage.jsx';
 import EditPost from './Pages/EditPost.jsx';
@@ -12,7 +13,8 @@ import ErrorBoundary from './ErrorBoundary.jsx';
 function App() {
   return (
     <ErrorBoundary>
-      <UserContextProvider>
+      <ThemeProvider>
+        <UserContextProvider>
         <Routes>
           <Route path="/" element={<Layout />}>
             <Route index element={<IndexPage />} />
@@ -24,6 +26,7 @@ function App() {
           </Route>
         </Routes>
       </UserContextProvider>
+    </ThemeProvider>
     </ErrorBoundary>
   );
 }

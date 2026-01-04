@@ -67,7 +67,6 @@ A modern, minimalist blog platform built with React and Node.js. Share your thou
 
 ## 📝 TODO
 
-- [ ] **Add Dark Mode** - Implement dark/light theme toggle
 - [ ] **Implement Redis** - Add Redis for caching and session management
 - [ ] Add search functionality
 - [ ] Implement categories/tags

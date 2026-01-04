@@ -2,6 +2,7 @@ import {useEffect, useState} from "react";
 import {Navigate, useParams} from "react-router-dom";
 import Editor from "../Editor.jsx";
 import {api} from '../api';
+import {useTheme} from "../ThemeContext.jsx";
 
 export default function EditPost() {
   const {id} = useParams();
@@ -10,6 +11,8 @@ export default function EditPost() {
   const [content,setContent] = useState('');
   const [files, setFiles] = useState('');
   const [redirect,setRedirect] = useState(false);
+  const {theme} = useTheme();
+  const isDark = theme === 'dark';
 
   useEffect(() => {
     api.get(`/posts/${id}`)
@@ -45,31 +48,47 @@ export default function EditPost() {
 
   return (
     <div>
-      <h1 className="text-2xl font-medium mb-8">Edit Post</h1>
+      <h1 className="text-2xl font-medium mb-8" style={{ color: isDark ? '#fafafa' : '#171717' }}>Edit Post</h1>
       <form onSubmit={updatePost} className="space-y-6">
         <input 
           type="text"
           placeholder="Title"
           value={title}
           onChange={ev => setTitle(ev.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black text-lg"
+          className="w-full px-4 py-3 rounded-lg focus:outline-none text-lg transition-colors"
+          style={{
+            backgroundColor: isDark ? '#171717' : '#fafafa',
+            color: isDark ? '#fafafa' : '#171717',
+            border: `1px solid ${isDark ? '#404040' : '#e5e5e5'}`
+          }}
         />
         <input 
           type="text"
           placeholder="Summary"
           value={summary}
           onChange={ev => setSummary(ev.target.value)}
-          className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:border-black"
+          className="w-full px-4 py-3 rounded-lg focus:outline-none transition-colors"
+          style={{
+            backgroundColor: isDark ? '#171717' : '#fafafa',
+            color: isDark ? '#fafafa' : '#171717',
+            border: `1px solid ${isDark ? '#404040' : '#e5e5e5'}`
+          }}
         />
         <input 
           type="file"
           onChange={ev => setFiles(ev.target.files)}
-          className="block w-full text-sm text-gray-500"
+          className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:cursor-pointer file:transition-colors"
+          style={{ color: isDark ? '#a3a3a3' : '#525252' }}
         />
         <Editor onChange={setContent} value={content} />
         <button 
           type="submit"
-          className="bg-[#0a0a0a] text-white py-2 px-6 rounded-md hover:bg-black"
+          className="py-3 px-8 rounded-lg font-medium transition-colors"
+          style={{
+            backgroundColor: isDark ? '#fafafa' : '#171717',
+            color: isDark ? '#171717' : '#fafafa',
+            border: `1px solid ${isDark ? '#fafafa' : '#171717'}`
+          }}
         >
           Update Post
         </button>

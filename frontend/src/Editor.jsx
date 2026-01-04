@@ -37,14 +37,14 @@ export default function Editor({ value, onChange }) {
 
   return (
     <div className="w-full">
-      <div className="border border-gray-300 rounded-lg overflow-hidden shadow-sm">
+      <div className="border border-[#e5e5e5] dark:border-[#404040] rounded-lg overflow-hidden shadow-sm">
         <ReactQuill
           value={value}
           onChange={onChange}
           theme="snow"
           modules={modules}
           formats={formats}
-          className="bg-white"
+          className="bg-white dark:bg-[#1a1a1a]"
           style={{
             minHeight: "300px",
           }}

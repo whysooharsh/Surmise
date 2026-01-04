@@ -3,7 +3,13 @@ const fs = require('fs');
 const Post = require('../Models/Post');
 const jwt = require('jsonwebtoken');
 
-const uploadMiddleware = multer({ dest: "uploads/" });
+const uploadMiddleware = multer({ 
+  dest: "uploads/",
+  limits: {
+    fieldSize: 10 * 1024 * 1024, // 10MB for text fields
+    fileSize: 5 * 1024 * 1024    // 5MB for file uploads
+  }
+});
 
 module.exports = {
     getAllPosts: async (req, res) => {
@@ -29,12 +35,28 @@ module.exports = {
 
     createPost: async (req, res) => {
         const { title, summary, content } = req.body;
-        const { token } = req.cookies;
         
-        if (!token) return res.status(401).json({ message: "Not authenticated" });
+        // Check for token in cookies first (for same-domain), then Authorization header (for cross-domain)
+        let token = req.cookies.token;
+        
+        if (!token) {
+            const authHeader = req.headers.authorization;
+            if (authHeader && authHeader.startsWith('Bearer ')) {
+                token = authHeader.substring(7);
+            }
+        }
+        
+        console.log('Create post request - Token exists:', !!token);
+        console.log('Create post request - Origin:', req.get('Origin'));
+        
+        if (!token) {
+            console.log('No token found in cookies or Authorization header');
+            return res.status(401).json({ message: "Not authenticated" });
+        }
 
         jwt.verify(token, process.env.JWT_SECRET, {}, async (err, info) => {
             if (err) {
+                console.log('Token verification error:', err.message);
                 return res.status(401).json({ message: "Invalid token" });
             }
 
@@ -58,14 +80,24 @@ module.exports = {
                 });
                 res.json(postDoc);
             } catch (error) {
-                res.status(500).json({ message: "Error creating post" });
+                console.error('Error creating post:', error);
+                res.status(500).json({ message: "Error creating post", error: error.message });
             }
         });
     },
 
     updatePost: async (req, res) => {
         try {
-            const { token } = req.cookies;
+            // Check for token in cookies first, then Authorization header
+            let token = req.cookies.token;
+            
+            if (!token) {
+                const authHeader = req.headers.authorization;
+                if (authHeader && authHeader.startsWith('Bearer ')) {
+                    token = authHeader.substring(7);
+                }
+            }
+            
             if (!token) return res.status(401).json({ message: "Not authenticated" });
 
             jwt.verify(token, process.env.JWT_SECRET, {}, async (err, info) => {
@@ -104,7 +136,16 @@ module.exports = {
 
     deletePost: async (req, res) => {
         try {
-            const { token } = req.cookies;
+            // Check for token in cookies first, then Authorization header
+            let token = req.cookies.token;
+            
+            if (!token) {
+                const authHeader = req.headers.authorization;
+                if (authHeader && authHeader.startsWith('Bearer ')) {
+                    token = authHeader.substring(7);
+                }
+            }
+            
             if (!token) return res.status(401).json({ message: "Not authenticated" });
 
             jwt.verify(token, process.env.JWT_SECRET, {}, async (err, info) => {
