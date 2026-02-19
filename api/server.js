@@ -62,16 +62,6 @@ app.use('/uploads', (req, res, next) => {
 
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
-if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
-  app.use(express.static(path.join(__dirname, '../frontend/dist')));
-  app.get('*', (req, res) => {
-    if (req.path.startsWith('/api/') || req.path.startsWith('/uploads/') || req.path === '/health') {
-      return res.status(404).json({ error: 'API endpoint not found' });
-    }
-    res.sendFile(path.resolve(__dirname, '../frontend/dist', 'index.html'));
-  });
-}
-
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', blogRoutes);
 
@@ -107,6 +97,13 @@ app.use((err, req, res, next) => {
             : err.message
     });
 });
+
+if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
+  app.use(express.static(path.join(__dirname, '../frontend/dist')));
+  app.get('*', (req, res) => {
+    res.sendFile(path.resolve(__dirname, '../frontend/dist', 'index.html'));
+  });
+}
 
 async function main() {
     try {

@@ -35,8 +35,11 @@ module.exports = {
 
     createPost: async (req, res) => {
         const { title, summary, content } = req.body;
+
+        if (!title || !summary || !content) {
+            return res.status(400).json({ message: "Title, summary, and content are required" });
+        }
         
-        // Check for token in cookies first (for same-domain), then Authorization header (for cross-domain)
         let token = req.cookies.token;
         
         if (!token) {
