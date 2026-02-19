@@ -2,7 +2,7 @@ import {Link} from "react-router-dom";
 import {useContext, useEffect} from "react";
 import {UserContext} from "./UserContext.jsx";
 import {api} from "./api";
-import ThemeToggle from "./components/themeToggle.jsx";
+import ThemeToggle from "./components/ThemeToggle.jsx";
 import {useTheme} from "./ThemeContext.jsx";
 
 export default function Header() {
