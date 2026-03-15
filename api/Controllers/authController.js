@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../Models/User');
+const { getTokenFromRequest } = require('../utils/requestAuth');
 
 
 if (!process.env.JWT_SECRET) {
@@ -77,15 +78,7 @@ module.exports = {
 
     profile: (req, res) => {
         try {
-            // Check for token in cookies first (for same-domain), then Authorization header (for cross-domain)
-            let token = req.cookies.token;
-            
-            if (!token) {
-                const authHeader = req.headers.authorization;
-                if (authHeader && authHeader.startsWith('Bearer ')) {
-                    token = authHeader.substring(7);
-                }
-            }
+            const token = getTokenFromRequest(req);
             
             console.log('Profile request - Token exists:', !!token);
             console.log('Profile request - Origin:', req.get('Origin'));

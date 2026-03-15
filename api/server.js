@@ -5,6 +5,7 @@ const cookieParser = require('cookie-parser');
 const path = require('path');
 const authRoutes = require('./Routes/authRoute');
 const blogRoutes = require('./Routes/blogRoute');
+const userRoutes = require('./Routes/userRoute');
 const connectDB = require('./config/db');
 
 const app = express();
@@ -64,6 +65,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', blogRoutes);
+app.use('/api/users', userRoutes);
 
 app.get('/health', (req, res) => {
   res.status(200).json({ 

@@ -1,15 +1,7 @@
-const multer = require('multer');
 const fs = require('fs');
 const Post = require('../Models/Post');
 const jwt = require('jsonwebtoken');
-
-const uploadMiddleware = multer({ 
-  dest: "uploads/",
-  limits: {
-    fieldSize: 10 * 1024 * 1024, // 10MB for text fields
-    fileSize: 5 * 1024 * 1024    // 5MB for file uploads
-  }
-});
+const { getTokenFromRequest } = require('../utils/requestAuth');
 
 module.exports = {
     getAllPosts: async (req, res) => {
@@ -40,14 +32,7 @@ module.exports = {
             return res.status(400).json({ message: "Title, summary, and content are required" });
         }
         
-        let token = req.cookies.token;
-        
-        if (!token) {
-            const authHeader = req.headers.authorization;
-            if (authHeader && authHeader.startsWith('Bearer ')) {
-                token = authHeader.substring(7);
-            }
-        }
+        const token = getTokenFromRequest(req);
         
         console.log('Create post request - Token exists:', !!token);
         console.log('Create post request - Origin:', req.get('Origin'));
@@ -91,15 +76,7 @@ module.exports = {
 
     updatePost: async (req, res) => {
         try {
-            // Check for token in cookies first, then Authorization header
-            let token = req.cookies.token;
-            
-            if (!token) {
-                const authHeader = req.headers.authorization;
-                if (authHeader && authHeader.startsWith('Bearer ')) {
-                    token = authHeader.substring(7);
-                }
-            }
+            const token = getTokenFromRequest(req);
             
             if (!token) return res.status(401).json({ message: "Not authenticated" });
 
@@ -139,15 +116,7 @@ module.exports = {
 
     deletePost: async (req, res) => {
         try {
-            // Check for token in cookies first, then Authorization header
-            let token = req.cookies.token;
-            
-            if (!token) {
-                const authHeader = req.headers.authorization;
-                if (authHeader && authHeader.startsWith('Bearer ')) {
-                    token = authHeader.substring(7);
-                }
-            }
+            const token = getTokenFromRequest(req);
             
             if (!token) return res.status(401).json({ message: "Not authenticated" });
 

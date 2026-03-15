@@ -9,6 +9,11 @@ export default function Header() {
   const {setUserInfo, userInfo, loading, setLoading} = useContext(UserContext);
   const {theme} = useTheme();
   const isDark = theme === 'dark';
+
+  function clearSession() {
+    localStorage.removeItem('token');
+    setUserInfo(null);
+  }
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -26,12 +31,8 @@ export default function Header() {
   }, [setUserInfo, setLoading]);
 
   function logout() {
-    api.post('/auth/logout').then(() => {
-      localStorage.removeItem('token');
-      setUserInfo(null);
-    }).catch(() => {
-      localStorage.removeItem('token');
-      setUserInfo(null);
+    api.post('/auth/logout').finally(() => {
+      clearSession();
     });
   }
 

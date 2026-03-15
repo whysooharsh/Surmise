@@ -1,46 +1,49 @@
 # Surmise Blog
 
-A modern, minimalist blog platform built with React and Node.js. Share your thoughts and ideas with a clean, professional interface.
+A full-stack blog app built with React, Node.js, Express, and MongoDB.
 
-## ✨ Features
+## Features
 
-- **Modern UI**: Clean, minimalist design with responsive layout
-- **Rich Text Editor**: Full-featured editor with formatting options
-- **Image Support**: Upload and display images in posts
-- **User Authentication**: Secure login and registration system
-- **Post Management**: Create, edit, and delete blog posts
-- **Mobile Responsive**: Works perfectly on all devices
+- Authentication (register, login, logout)
+- Create, edit, and delete posts
+- Rich text editor support
+- Image upload for posts
+- Responsive frontend
 
-## 🚀 Getting Started
+## Tech Stack
+
+- Frontend: React + Vite
+- Backend: Node.js + Express
+- Database: MongoDB + Mongoose
+
+## Getting Started
 
 ### Prerequisites
-- Node.js (v18 or higher)
-- MongoDB database
-- npm or yarn
+- Node.js 18+
+- MongoDB
+- npm
 
 ### Installation
 
-1. **Clone the repository**
+1. Clone the repository
    ```bash
    git clone https://github.com/harsSharma45/Surmise.git
    cd Surmise
    ```
 
-2. **Install backend dependencies**
+2. Install backend dependencies
    ```bash
    cd api
    npm install
    ```
 
-3. **Install frontend dependencies**
+3. Install frontend dependencies
    ```bash
    cd ../frontend
    npm install
    ```
 
-4. **Environment Variables**
-   
-   Create a `.env` file in the `api` directory:
+4. Create `api/.env`
    ```env
    MONGO_URI=your_mongodb_connection_string
    JWT_SECRET=your_jwt_secret_key
@@ -49,27 +52,21 @@ A modern, minimalist blog platform built with React and Node.js. Share your thou
    ALLOWED_ORIGINS=http://localhost:5173,https://your-frontend-domain.com
    ```
 
-5. **Start the development servers**
-   
-   Backend (from `api` directory):
-   ```bash
-   npm run dev
-   ```
-   
-   Frontend (from `frontend` directory):
+5. Start the backend (from `api`)
    ```bash
    npm run dev
    ```
 
+6. Start the frontend (from `frontend`)
+   ```bash
+   npm run dev
+   ```
 
+## Todo
 
-
-
-## 📝 TODO
-
-- [ ] **Implement Redis** - Add Redis for caching and session management
+- [ ] Add Redis for caching and sessions
 - [ ] Add search functionality
-- [ ] Implement categories/tags
+- [ ] Add categories and tags
 
 
 

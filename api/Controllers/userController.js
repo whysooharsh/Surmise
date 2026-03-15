@@ -1,6 +1,7 @@
 const User = require('../Models/User');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const { getTokenFromRequest } = require('../utils/requestAuth');
 
 module.exports = {
     getAllUsers: async (req, res) => {
@@ -53,7 +54,7 @@ module.exports = {
 
     updateUser: async (req, res) => {
         try {
-            const { token } = req.cookies;
+            const token = getTokenFromRequest(req);
             if (!token) return res.status(401).json({ message: "Not authenticated" });
 
             jwt.verify(token, process.env.JWT_SECRET, {}, async (err, info) => {
@@ -87,7 +88,7 @@ module.exports = {
 
     deleteUser: async (req, res) => {
         try {
-            const { token } = req.cookies;
+            const token = getTokenFromRequest(req);
             if (!token) return res.status(401).json({ message: "Not authenticated" });
 
             jwt.verify(token, process.env.JWT_SECRET, {}, async (err, info) => {
@@ -106,7 +107,7 @@ module.exports = {
     },
 
     getUserProfile: async (req, res) => {
-        const { token } = req.cookies;
+        const token = getTokenFromRequest(req);
         if (!token) return res.status(401).json({ message: "Not authenticated" });
 
         jwt.verify(token, process.env.JWT_SECRET, {}, async (err, info) => {

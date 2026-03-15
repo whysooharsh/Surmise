@@ -1,16 +1,8 @@
 const { Router } = require("express");
-const multer = require('multer');
 const router = Router();
 
 const blogController = require('../Controllers/blogController');
-
-const uploadMiddleware = multer({ 
-  dest: "uploads/",
-  limits: {
-    fieldSize: 10 * 1024 * 1024, // 10MB for text fields
-    fileSize: 5 * 1024 * 1024    // 5MB for file uploads
-  }
-});
+const uploadMiddleware = require('../middleware/upload');
 
 router.get('/', blogController.getAllPosts);
 router.get('/:id', blogController.getPostById);
