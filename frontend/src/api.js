@@ -6,6 +6,15 @@ const API_URL = import.meta.env.VITE_API_URL ||
 export const backendUrl = API_URL;
 export const apiBaseUrl = `${API_URL}/api`;
 
+export function getCoverUrl(cover) {
+  if (!cover) return '';
+  if (cover.startsWith('http://') || cover.startsWith('https://') || cover.startsWith('data:')) {
+    return cover;
+  }
+  const cleanCover = cover.startsWith('/') ? cover : `/${cover}`;
+  return `${backendUrl}${cleanCover}`;
+}
+
 axios.defaults.withCredentials = true;
 
 export const api = axios.create({
@@ -13,7 +22,6 @@ export const api = axios.create({
   withCredentials: true,
 });
 
-// Add request interceptor to include token in Authorization header
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -22,19 +30,18 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Add response interceptor to handle 401 errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear token and redirect to login if unauthorized
       localStorage.removeItem('token');
-      if (window.location.pathname !== '/login') {
+      const currentPath = window.location.pathname;
+      const isProtected = currentPath.startsWith('/create') || currentPath.startsWith('/edit');
+      
+      if (isProtected && currentPath !== '/login') {
         window.location.href = '/login';
       }
     }

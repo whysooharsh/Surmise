@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /create
+Disallow: /edit/
+
+Sitemap: https://surmise.vercel.app/sitemap.xml

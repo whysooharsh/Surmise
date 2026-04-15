@@ -1,12 +1,16 @@
 {
-  "name": "surmise-backend",
+  "name": "surmise",
   "version": "1.0.0",
-  "description": "Backend for Surmise blog application",
-  "main": "api/server.js",
+  "private": true,
+  "description": "Surmise blog application",
+  "workspaces": [
+    "api",
+    "frontend"
+  ],
   "scripts": {
-    "start": "cd api && npm start",
-    "dev": "cd api && npm run dev",
-    "install-api": "cd api && npm install"
+    "start": "npm start --workspace=api",
+    "dev": "npm run dev --workspace=api",
+    "build": "npm run build --workspace=frontend"
   },
   "engines": {
     "node": ">=18.0.0"

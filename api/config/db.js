@@ -1,11 +1,6 @@
 const mongoose = require("mongoose");
 require("dotenv").config();
 
-if (!process.env.MONGO_URI) {
-  console.error("Error: MONGO_URI is not defined in the environment variables.");
-  process.exit(1);
-}
-
 const connectDB = async () => {
   try {
     await mongoose.connect(process.env.MONGO_URI);
@@ -16,5 +11,12 @@ const connectDB = async () => {
   }
 };
 
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB disconnected! Mongoose will automatically try to reconnect.');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error after initial connection:', err);
+});
 
 module.exports = connectDB;
