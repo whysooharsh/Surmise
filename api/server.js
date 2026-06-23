@@ -131,10 +131,18 @@ app.use((err, req, res, next) => {
 });
 
 if (process.env.NODE_ENV === 'production' && !process.env.VERCEL) {
-  app.use(express.static(path.join(__dirname, '../dist')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.resolve(__dirname, '../dist', 'index.html'));
-  });
+  const fs = require('fs');
+  const distPath = path.join(__dirname, '../dist');
+  if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+    app.get('*', (req, res) => {
+      res.sendFile(path.resolve(distPath, 'index.html'));
+    });
+  } else {
+    app.get('/', (req, res) => {
+      res.json({ message: "Surmise API is running." });
+    });
+  }
 }
 
 async function main() {
