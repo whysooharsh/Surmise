@@ -11,5 +11,13 @@ const connectDB = async () => {
   }
 };
 
+mongoose.connection.on('disconnected', () => {
+  console.warn('MongoDB disconnected! Mongoose will automatically try to reconnect.');
+});
+
+mongoose.connection.on('error', (err) => {
+  console.error('MongoDB connection error after initial connection:', err);
+});
+
 
 module.exports = connectDB;
