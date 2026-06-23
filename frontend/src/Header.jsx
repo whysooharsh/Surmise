@@ -47,13 +47,13 @@ export default function Header() {
        
       </div>
       <nav className="flex items-center gap-6">
+        <ThemeToggle />
         {loading ? (
           <div className="w-24 h-9 rounded-md animate-pulse" style={{ backgroundColor: isDark ? '#262626' : '#e5e5e5' }}></div>
         ) : (
           <>
             {username && (
               <>
-                <ThemeToggle/>
                 <Link 
                   to="/create" 
                   className="font-medium transition-colors duration-200"

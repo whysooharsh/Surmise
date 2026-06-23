@@ -62,13 +62,13 @@ export default function PostPage() {
           {postInfo.title}
         </h1>
         <div className="flex items-center gap-4 text-sm mb-6" style={{ color: isDark ? '#a3a3a3' : '#737373' }}>
-          <span className="font-medium">by {postInfo.author.username}</span>
+          <span className="font-medium">by {postInfo.author?.username || 'anonymous'}</span>
           <span className="w-1 h-1 rounded-full" style={{ backgroundColor: isDark ? '#525252' : '#a3a3a3' }}></span>
           <time className="font-light">
             {formatISO9075(new Date(postInfo.createdAt))}
           </time>
         </div>
-        {userInfo && userInfo.id === postInfo.author._id && (
+        {userInfo && userInfo.id === postInfo.author?._id && (
           <div className="mb-6">
             <Link 
               to={`/edit/${postInfo._id}`} 
@@ -106,7 +106,7 @@ export default function PostPage() {
       <footer className="mt-16 pt-8" style={{ borderTop: `1px solid ${isDark ? '#262626' : '#e5e5e5'}` }}>
         <div className="flex flex-col sm:flex-row justify-between items-center">
           <p className="text-sm mb-4 sm:mb-0" style={{ color: isDark ? '#a3a3a3' : '#525252' }}>
-            Written by <span className="font-medium">{postInfo.author.username}</span>
+            Written by <span className="font-medium">{postInfo.author?.username || 'anonymous'}</span>
           </p>
           <div className="flex items-center space-x-4">
             <a 

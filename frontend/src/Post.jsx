@@ -18,7 +18,7 @@ export default function Post({_id,title,summary,cover,content,createdAt,author})
           </Link>
           <p className="mb-4 leading-relaxed" style={{ color: isDark ? '#a3a3a3' : '#525252' }}>{summary}</p>
           <div className="flex items-center gap-3 text-sm" style={{ color: '#737373' }}>
-            <span className="font-medium">by {author.username}</span>
+            <span className="font-medium">by {author?.username || 'anonymous'}</span>
             <span className="w-1 h-1 rounded-full" style={{ backgroundColor: '#737373' }}></span>
             <time className="font-light">{formatISO9075(new Date(createdAt))}</time>
           </div>

@@ -1,14 +1,44 @@
 require('dotenv').config();
+
+// Validate required environment variables at startup
+const requiredEnvVars = ['MONGO_URI', 'JWT_SECRET'];
+const missingEnvVars = requiredEnvVars.filter(varName => !process.env[varName]);
+
+if (missingEnvVars.length > 0) {
+  console.error('\n================================================================');
+  console.error(`ERROR: Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  console.error('Please configure these environment variables before starting the server.');
+  console.error('================================================================\n');
+  process.exit(1);
+}
+
 const express = require("express");
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const authRoutes = require('./Routes/authRoute');
 const blogRoutes = require('./Routes/blogRoute');
 const userRoutes = require('./Routes/userRoute');
 const connectDB = require('./config/db');
 
 const app = express();
+
+// Secure headers (allows cross-origin image loading for uploads)
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// Rate limiting (prevents API abuse/DDoS)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per windowMs
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Too many requests, please try again later.' }
+});
+app.use('/api/', limiter);
 
 if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
