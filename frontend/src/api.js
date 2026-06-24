@@ -32,9 +32,14 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Clear token and redirect to login if unauthorized
+      // Clear token on 401
       localStorage.removeItem('token');
-      if (window.location.pathname !== '/login') {
+      
+      // Only redirect to login if user is trying to access a protected route
+      const currentPath = window.location.pathname;
+      const isProtected = currentPath.startsWith('/create') || currentPath.startsWith('/edit');
+      
+      if (isProtected && currentPath !== '/login') {
         window.location.href = '/login';
       }
     }

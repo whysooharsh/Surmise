@@ -1,8 +1,9 @@
-import {useEffect, useState} from "react";
+import {useEffect, useState, useContext} from "react";
 import {Navigate, useParams} from "react-router-dom";
 import Editor from "../Editor.jsx";
 import {api} from '../api';
 import {useTheme} from "../ThemeContext.jsx";
+import {UserContext} from "../UserContext.jsx";
 
 function createRipple(event) {
   const button = event.currentTarget;
@@ -33,6 +34,11 @@ export default function EditPost() {
   const [redirect,setRedirect] = useState(false);
   const {theme} = useTheme();
   const isDark = theme === 'dark';
+  const {userInfo, loading} = useContext(UserContext);
+
+  if (!loading && !userInfo) {
+    return <Navigate to="/login" />;
+  }
 
   useEffect(() => {
     api.get(`/posts/${id}`)

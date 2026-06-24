@@ -32,6 +32,11 @@ export default function CreatePost() {
   const [redirect, setRedirect] = useState(false);
   const {theme} = useTheme();
   const isDark = theme === 'dark';
+  const {userInfo, loading} = useContext(UserContext);
+
+  if (!loading && !userInfo) {
+    return <Navigate to="/login" />;
+  }
   
   async function createNewPost(ev) {
     ev.preventDefault();
