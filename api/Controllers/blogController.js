@@ -6,6 +6,23 @@ const { getTokenFromRequest } = require('../utils/requestAuth');
 module.exports = {
     getAllPosts: async (req, res) => {
         try {
+            const page = parseInt(req.query.page);
+            if (page) {
+                const limit = parseInt(req.query.limit) || 5;
+                const skip = (page - 1) * limit;
+                const total = await Post.countDocuments();
+                const posts = await Post.find()
+                    .populate('author', ['username'])
+                    .sort({ createdAt: -1 })
+                    .skip(skip)
+                    .limit(limit);
+                return res.json({
+                    posts,
+                    total,
+                    page,
+                    pages: Math.ceil(total / limit)
+                });
+            }
             const posts = await Post.find()
                 .populate('author', ['username'])
                 .sort({ createdAt: -1 });

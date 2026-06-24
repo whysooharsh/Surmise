@@ -4,6 +4,26 @@ import Editor from "../Editor.jsx";
 import {api} from '../api';
 import {useTheme} from "../ThemeContext.jsx";
 
+function createRipple(event) {
+  const button = event.currentTarget;
+  const existingRipples = button.getElementsByClassName("ripple-span");
+  for (let r of Array.from(existingRipples)) {
+    r.remove();
+  }
+
+  const circle = document.createElement("span");
+  const diameter = Math.max(button.clientWidth, button.clientHeight);
+  const radius = diameter / 2;
+
+  const rect = button.getBoundingClientRect();
+  circle.style.width = circle.style.height = `${diameter}px`;
+  circle.style.left = `${event.clientX - rect.left - radius}px`;
+  circle.style.top = `${event.clientY - rect.top - radius}px`;
+  circle.classList.add("ripple-span");
+
+  button.appendChild(circle);
+}
+
 export default function EditPost() {
   const {id} = useParams();
   const [title,setTitle] = useState('');
@@ -26,6 +46,11 @@ export default function EditPost() {
 
   async function updatePost(ev) {
     ev.preventDefault();
+    if (!title.trim() || !summary.trim() || !content.trim()) {
+      alert("Please enter a title, summary, and post content.");
+      return;
+    }
+
     const data = new FormData();
     data.set('title', title);
     data.set('summary', summary);
@@ -34,6 +59,7 @@ export default function EditPost() {
     if (files?.[0]) {
       data.set('file', files?.[0]);
     }
+    
     try {
       await api.put(`/posts/${id}`, data);
       setRedirect(true);
@@ -47,48 +73,73 @@ export default function EditPost() {
   }
 
   return (
-    <div>
-      <h1 className="text-2xl font-medium mb-8" style={{ color: isDark ? '#fafafa' : '#171717' }}>Edit Post</h1>
+    <div className="animate-fade-slide-in" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
+      <h1 className="text-3xl md:text-4xl font-serif-heading font-black mb-8 leading-tight tracking-tight" style={{ color: isDark ? '#fafafa' : '#171717' }}>
+        Edit post
+      </h1>
+      
       <form onSubmit={updatePost} className="space-y-6">
-        <input 
-          type="text"
-          placeholder="Title"
-          value={title}
-          onChange={ev => setTitle(ev.target.value)}
-          className="w-full px-4 py-3 rounded-lg focus:outline-none text-lg transition-colors"
-          style={{
-            backgroundColor: isDark ? '#171717' : '#fafafa',
-            color: isDark ? '#fafafa' : '#171717',
-            border: `1px solid ${isDark ? '#404040' : '#e5e5e5'}`
-          }}
-        />
-        <input 
-          type="text"
-          placeholder="Summary"
-          value={summary}
-          onChange={ev => setSummary(ev.target.value)}
-          className="w-full px-4 py-3 rounded-lg focus:outline-none transition-colors"
-          style={{
-            backgroundColor: isDark ? '#171717' : '#fafafa',
-            color: isDark ? '#fafafa' : '#171717',
-            border: `1px solid ${isDark ? '#404040' : '#e5e5e5'}`
-          }}
-        />
-        <input 
-          type="file"
-          onChange={ev => setFiles(ev.target.files)}
-          className="block w-full text-sm file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:cursor-pointer file:transition-colors"
-          style={{ color: isDark ? '#a3a3a3' : '#525252' }}
-        />
-        <Editor onChange={setContent} value={content} />
+        <div className="space-y-1">
+          <label className="text-[10px] font-extrabold tracking-wider uppercase opacity-70">
+            Post Title
+          </label>
+          <input 
+            type="text"
+            placeholder="Title"
+            value={title}
+            onChange={ev => setTitle(ev.target.value)}
+            className={`w-full px-4 py-3 text-base focus:outline-none ${
+              isDark ? 'glass-input-dark text-white' : 'glass-input-light text-neutral-900'
+            }`}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-[10px] font-extrabold tracking-wider uppercase opacity-70">
+            Post Summary
+          </label>
+          <input 
+            type="text"
+            placeholder="Summary"
+            value={summary}
+            onChange={ev => setSummary(ev.target.value)}
+            className={`w-full px-4 py-3 text-sm focus:outline-none ${
+              isDark ? 'glass-input-dark text-white' : 'glass-input-light text-neutral-900'
+            }`}
+          />
+        </div>
+
+        <div className="space-y-2">
+          <label className="text-[10px] font-extrabold tracking-wider uppercase opacity-70 block">
+            Cover Image
+          </label>
+          <input 
+            type="file"
+            onChange={ev => setFiles(ev.target.files)}
+            className={`block w-full text-xs file:mr-4 file:py-2.5 file:px-5 file:rounded-full file:border file:text-xs file:font-bold file:cursor-pointer file:transition-all ${
+              isDark 
+                ? 'text-neutral-400 file:border-neutral-800 file:bg-neutral-900 file:text-white hover:file:bg-neutral-800' 
+                : 'text-neutral-600 file:border-neutral-200 file:bg-neutral-50 file:text-neutral-800 hover:file:bg-neutral-100'
+            }`}
+          />
+        </div>
+
+        <div className="space-y-1">
+          <label className="text-[10px] font-extrabold tracking-wider uppercase opacity-70 block mb-1">
+            Post Content
+          </label>
+          <Editor onChange={setContent} value={content} />
+        </div>
+
         <button 
           type="submit"
-          className="py-3 px-8 rounded-lg font-medium transition-colors"
-          style={{
-            backgroundColor: isDark ? '#fafafa' : '#171717',
-            color: isDark ? '#171717' : '#fafafa',
-            border: `1px solid ${isDark ? '#fafafa' : '#171717'}`
-          }}
+          onClick={createRipple}
+          style={{ color: isDark ? '#171717' : '#ffffff' }}
+          className={`ripple-button py-3.5 px-10 font-bold text-sm shadow-md ${
+            isDark 
+              ? 'bg-white hover:bg-neutral-100' 
+              : 'bg-neutral-950 hover:bg-neutral-800'
+          }`}
         >
           Update Post
         </button>

@@ -8,19 +8,19 @@ import {backendUrl} from "../api";
 import {useTheme} from "../ThemeContext.jsx";
 
 function PostPageSkeleton({ isDark }) {
-  const skeletonBg = isDark ? "#262626" : "#e5e5e5";
+  const skeletonBg = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
   const dotBg = isDark ? "#404040" : "#d4d4d4";
   return (
-    <article className="max-w-none animate-pulse">
+    <article className="max-w-none animate-pulse" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
       <header className="mb-12">
-        <div className="h-10 rounded-md w-3/4 mb-6" style={{ backgroundColor: skeletonBg }}></div>
+        <div className="h-12 rounded-lg w-4/5 mb-6" style={{ backgroundColor: skeletonBg }}></div>
         <div className="flex items-center gap-4 mb-6">
           <div className="h-4 rounded-md w-32" style={{ backgroundColor: skeletonBg }}></div>
           <div className="w-1 h-1 rounded-full" style={{ backgroundColor: dotBg }}></div>
           <div className="h-4 rounded-md w-40" style={{ backgroundColor: skeletonBg }}></div>
         </div>
       </header>
-      <div className="mb-12 h-96 rounded-xl" style={{ backgroundColor: skeletonBg }}></div>
+      <div className="mb-12 h-[350px] md:h-[450px] rounded-3xl" style={{ backgroundColor: skeletonBg }}></div>
       <div className="space-y-4">
         <div className="h-4 rounded-md w-full" style={{ backgroundColor: skeletonBg }}></div>
         <div className="h-4 rounded-md w-full" style={{ backgroundColor: skeletonBg }}></div>
@@ -55,41 +55,49 @@ export default function PostPage() {
   }
 
   return (
-    <article className="max-w-none">
+    <article className="max-w-none animate-fade-slide-in" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
       
       <header className="mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 leading-tight" style={{ color: isDark ? '#fafafa' : '#171717' }}>
+        <h1 className="text-4xl md:text-5xl font-serif-heading font-black mb-6 leading-tight tracking-tight" style={{ color: isDark ? '#fafafa' : '#171717' }}>
           {postInfo.title}
         </h1>
-        <div className="flex items-center gap-4 text-sm mb-6" style={{ color: isDark ? '#a3a3a3' : '#737373' }}>
-          <span className="font-medium">by {postInfo.author?.username || 'anonymous'}</span>
-          <span className="w-1 h-1 rounded-full" style={{ backgroundColor: isDark ? '#525252' : '#a3a3a3' }}></span>
-          <time className="font-light">
-            {formatISO9075(new Date(postInfo.createdAt))}
-          </time>
-        </div>
-        {userInfo && userInfo.id === postInfo.author?._id && (
-          <div className="mb-6">
-            <Link 
-              to={`/edit/${postInfo._id}`} 
-              className="inline-flex items-center text-sm transition-colors duration-200"
-              style={{ color: isDark ? '#a3a3a3' : '#525252' }}
-            >
-              <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-              </svg>
-              Edit post
-            </Link>
+        
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-6" style={{ borderBottom: `1px solid ${isDark ? '#262626' : '#f0f0f0'}` }}>
+          <div className="flex items-center gap-2.5 text-xs font-semibold" style={{ color: '#737373' }}>
+            <span className="opacity-90">by {postInfo.author?.username || 'anonymous'}</span>
+            <span className="w-1 h-1 rounded-full bg-neutral-400 dark:bg-neutral-600"></span>
+            <time className="font-medium opacity-70">
+              {formatISO9075(new Date(postInfo.createdAt))}
+            </time>
           </div>
-        )}
+          
+          {userInfo && userInfo.id === postInfo.author?._id && (
+            <div>
+              <Link 
+                to={`/edit/${postInfo._id}`} 
+                className="inline-flex items-center text-xs font-bold transition-all px-4 py-2 rounded-full border hover:scale-[1.02] active:scale-[0.98]"
+                style={{ 
+                  color: isDark ? '#fafafa' : '#171717',
+                  borderColor: isDark ? '#262626' : '#e5e5e5',
+                  backgroundColor: isDark ? '#171717/50' : '#fafafa'
+                }}
+              >
+                <svg className="w-3.5 h-3.5 mr-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+                Edit post
+              </Link>
+            </div>
+          )}
+        </div>
       </header>
 
       {postInfo.cover && (
-        <div className="mb-12">
+        <div className="mb-12 overflow-hidden rounded-3xl border dark:border-neutral-800 border-neutral-100 shadow-[0_8px_30px_rgba(0,0,0,0.01)]">
           <img 
             src={`${backendUrl}/${postInfo.cover}`} 
             alt={postInfo.title}
-            className="w-full h-auto rounded-xl shadow-sm object-cover max-h-[500px]"
+            className="w-full h-auto object-cover max-h-[500px]"
             onError={(e) => {
               e.target.parentElement.style.display = 'none';
             }}
@@ -98,23 +106,23 @@ export default function PostPage() {
       )}
 
       <div 
-        className="prose prose-lg max-w-none"
-        style={{ color: isDark ? '#a3a3a3' : '#525252' }}
+        className="prose prose-lg max-w-none font-medium leading-relaxed dark:prose-invert"
+        style={{ color: isDark ? '#d4d4d4' : '#404040' }}
         dangerouslySetInnerHTML={{__html:postInfo.content}} 
       />
 
       <footer className="mt-16 pt-8" style={{ borderTop: `1px solid ${isDark ? '#262626' : '#e5e5e5'}` }}>
         <div className="flex flex-col sm:flex-row justify-between items-center">
-          <p className="text-sm mb-4 sm:mb-0" style={{ color: isDark ? '#a3a3a3' : '#525252' }}>
-            Written by <span className="font-medium">{postInfo.author?.username || 'anonymous'}</span>
+          <p className="text-sm font-semibold mb-4 sm:mb-0" style={{ color: isDark ? '#a3a3a3' : '#525252' }}>
+            Written by <span className="text-neutral-900 dark:text-white font-extrabold">{postInfo.author?.username || 'anonymous'}</span>
           </p>
           <div className="flex items-center space-x-4">
             <a 
               href="https://github.com/whysooharsh" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="transition-colors duration-200"
-              style={{ color: isDark ? '#525252' : '#a3a3a3' }}
+              className="transition-colors duration-200 hover:text-purple-600 dark:hover:text-purple-400"
+              style={{ color: isDark ? '#737373' : '#a3a3a3' }}
               aria-label="GitHub"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
@@ -125,8 +133,8 @@ export default function PostPage() {
               href="https://linkedin.com/in/harsharma45" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="transition-colors duration-200"
-              style={{ color: isDark ? '#525252' : '#a3a3a3' }}
+              className="transition-colors duration-200 hover:text-purple-600 dark:hover:text-purple-400"
+              style={{ color: isDark ? '#737373' : '#a3a3a3' }}
               aria-label="LinkedIn"
             >
               <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
