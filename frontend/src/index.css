@@ -344,21 +344,4 @@ html.dark .ripple-span {
   font-family: var(--font-heading);
 }
 
-@keyframes flower-sway-anim {
-  0% {
-    transform: rotate(var(--flower-from, -8deg)) translateY(0);
-  }
-  50% {
-    transform: rotate(0deg) translateY(-2px);
-  }
-  100% {
-    transform: rotate(var(--flower-to, 8deg)) translateY(0);
-  }
-}
-
-.flower-sway {
-  transform-origin: bottom center;
-  animation: flower-sway-anim 6s ease-in-out infinite alternate;
-}
-
 
