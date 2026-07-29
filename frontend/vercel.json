@@ -1,8 +1,11 @@
 {
+  "version": 2,
+  "outputDirectory": "dist",
+  "framework": "vite",
   "cleanUrls": true,
   "rewrites": [
     {
-      "source": "/(.*)",
+      "source": "/((?!assets/|.*\\..*).*)",
       "destination": "/index.html"
     }
   ]
