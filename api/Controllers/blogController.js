@@ -1,10 +1,10 @@
-const fs = require('fs');
-const path = require('path');
-const Post = require('../Models/Post');
-const jwt = require('jsonwebtoken');
+const blogService = require('../services/blogService');
+const { processUploadedFile } = require('../utils/fileHelper');
 const { getTokenFromRequest } = require('../utils/requestAuth');
+const jwt = require('jsonwebtoken');
 
-function verifyToken(req) {
+function getAuthenticatedUser(req) {
+  if (req.user) return req.user;
   const token = getTokenFromRequest(req);
   if (!token) return null;
   try {
@@ -14,131 +14,86 @@ function verifyToken(req) {
   }
 }
 
-function processUploadedFile(file) {
-  if (!file) return null;
-  const { originalname, path: filePath } = file;
-  const ext = originalname.split('.').pop();
-  const filename = `${filePath}.${ext}`;
-  fs.renameSync(filePath, filename);
-  return filename.replace(/\\/g, '/');
-}
-
 module.exports = {
   getAllPosts: async (req, res) => {
     try {
-      const page = parseInt(req.query.page);
-      if (page) {
-        const limit = parseInt(req.query.limit) || 5;
-        const skip = (page - 1) * limit;
-        const total = await Post.countDocuments();
-        const posts = await Post.find()
-          .populate('author', ['username'])
-          .sort({ createdAt: -1 })
-          .skip(skip)
-          .limit(limit);
-
-        return res.json({
-          posts,
-          total,
-          page,
-          pages: Math.ceil(total / limit)
-        });
-      }
-      const posts = await Post.find()
-        .populate('author', ['username'])
-        .sort({ createdAt: -1 });
-
-      res.json(posts);
+      const page = req.query.page;
+      const limit = req.query.limit;
+      const result = await blogService.getAllPosts({ page, limit });
+      res.json(result);
     } catch (error) {
-      res.status(500).json({ message: "Error fetching posts" });
+      res.status(error.status || 500).json({ message: error.message || "Error fetching posts" });
     }
   },
 
   getPostById: async (req, res) => {
     try {
-      const post = await Post.findById(req.params.id).populate('author', ['username']);
-      if (!post) return res.status(404).json({ message: "Post not found" });
+      const post = await blogService.getPostById(req.params.id);
       res.json(post);
     } catch (error) {
-      res.status(500).json({ message: "Error fetching post" });
+      res.status(error.status || 500).json({ message: error.message || "Error fetching post" });
     }
   },
 
   createPost: async (req, res) => {
-    const { title, summary, content } = req.body;
-
-    if (!title || !summary || !content) {
-      return res.status(400).json({ message: "Title, summary, and content are required" });
-    }
-
-    const userInfo = verifyToken(req);
+    const userInfo = getAuthenticatedUser(req);
     if (!userInfo) {
       return res.status(401).json({ message: "Not authenticated" });
     }
 
-    const newPath = processUploadedFile(req.file);
+    const { title, summary, content } = req.body;
+    const coverPath = processUploadedFile(req.file);
 
     try {
-      const postDoc = await Post.create({
+      const postDoc = await blogService.createPost({
         title,
         summary,
         content,
-        cover: newPath,
-        author: userInfo.id,
+        cover: coverPath,
+        authorId: userInfo.id
       });
       res.json(postDoc);
     } catch (error) {
-      res.status(500).json({ message: "Error creating post", error: error.message });
+      res.status(error.status || 500).json({ message: error.message || "Error creating post" });
     }
   },
 
   updatePost: async (req, res) => {
     try {
-      const userInfo = verifyToken(req);
+      const userInfo = getAuthenticatedUser(req);
       if (!userInfo) return res.status(401).json({ message: "Not authenticated" });
 
-      const post = await Post.findById(req.params.id);
-      if (!post) return res.status(404).json({ message: "Post not found" });
-
-      if (String(post.author) !== String(userInfo.id)) {
-        return res.status(400).json({ message: "You are not the author" });
-      }
-
-      let newPath = post.cover;
-      if (req.file) {
-        newPath = processUploadedFile(req.file);
-      }
-
       const { title, summary, content } = req.body;
-      await Post.findByIdAndUpdate(req.params.id, {
+      const coverPath = req.file ? processUploadedFile(req.file) : undefined;
+
+      const result = await blogService.updatePost({
+        id: req.params.id,
         title,
         summary,
         content,
-        cover: newPath
+        cover: coverPath,
+        authorId: userInfo.id
       });
 
-      res.json({ message: "Post updated successfully" });
+      res.json(result);
     } catch (error) {
-      res.status(500).json({ message: "Error updating post" });
+      res.status(error.status || 500).json({ message: error.message || "Error updating post" });
     }
   },
 
   deletePost: async (req, res) => {
     try {
-      const userInfo = verifyToken(req);
+      const userInfo = getAuthenticatedUser(req);
       if (!userInfo) return res.status(401).json({ message: "Not authenticated" });
 
-      const post = await Post.findById(req.params.id);
-      if (!post) return res.status(404).json({ message: "Post not found" });
+      const result = await blogService.deletePost({
+        id: req.params.id,
+        authorId: userInfo.id
+      });
 
-      if (String(post.author) !== String(userInfo.id)) {
-        return res.status(400).json({ message: "You are not the author" });
-      }
-
-      await Post.findByIdAndDelete(req.params.id);
-      res.json({ message: "Post deleted successfully" });
+      res.json(result);
     } catch (error) {
-      res.status(500).json({ message: "Error deleting post" });
+      res.status(error.status || 500).json({ message: error.message || "Error deleting post" });
     }
   }
 };

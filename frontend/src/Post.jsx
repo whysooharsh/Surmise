@@ -3,7 +3,7 @@ import {Link} from "react-router-dom";
 import {getCoverUrl} from './api';
 import {useTheme} from './ThemeContext.jsx';
 
-export default function Post({_id,title,summary,cover,content,createdAt,author}) {
+export default function Post({_id,title,summary,cover,createdAt,author}) {
   const {theme} = useTheme();
   const isDark = theme === 'dark';
   

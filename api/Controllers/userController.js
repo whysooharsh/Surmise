@@ -1,9 +1,9 @@
-const User = require('../Models/User');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcryptjs');
+const userService = require('../services/userService');
 const { getTokenFromRequest } = require('../utils/requestAuth');
+const jwt = require('jsonwebtoken');
 
-function verifyToken(req) {
+function getAuthenticatedUser(req) {
+  if (req.user) return req.user;
   const token = getTokenFromRequest(req);
   if (!token) return null;
   try {
@@ -16,106 +16,74 @@ function verifyToken(req) {
 module.exports = {
   getAllUsers: async (req, res) => {
     try {
-      const users = await User.find({}, { password: 0 });
+      const users = await userService.getAllUsers();
       res.json(users);
     } catch (error) {
-      res.status(500).json({ message: "Error fetching users" });
+      res.status(error.status || 500).json({ message: error.message || "Error fetching users" });
     }
   },
 
   getUserById: async (req, res) => {
     try {
-      const user = await User.findById(req.params.id, { password: 0 });
-      if (!user) return res.status(404).json({ message: "User not found" });
+      const user = await userService.getUserById(req.params.id);
       res.json(user);
     } catch (error) {
-      res.status(500).json({ message: "Error fetching user" });
+      res.status(error.status || 500).json({ message: error.message || "Error fetching user" });
     }
   },
 
   createUser: async (req, res) => {
     try {
-      const { username, password, email } = req.body;
-      
-      const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-      if (existingUser) {
-        return res.status(400).json({ message: "Username or email already exists" });
-      }
-
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-
-      const user = await User.create({
-        username,
-        password: hashedPassword,
-        email
-      });
-
-      res.json({
-        id: user._id,
-        username: user.username,
-        email: user.email
-      });
+      const result = await userService.createUser(req.body);
+      res.json(result);
     } catch (error) {
-      res.status(500).json({ message: "Error creating user" });
+      res.status(error.status || 500).json({ message: error.message || "Error creating user" });
     }
   },
 
   updateUser: async (req, res) => {
     try {
-      const userInfo = verifyToken(req);
+      const userInfo = getAuthenticatedUser(req);
       if (!userInfo) return res.status(401).json({ message: "Not authenticated" });
-      if (userInfo.id !== req.params.id) {
-        return res.status(403).json({ message: "Not authorized" });
-      }
 
-      const { username, email, password } = req.body;
-      const updateData = {};
-      
-      if (username) updateData.username = username;
-      if (email) updateData.email = email;
-      if (password) {
-        const salt = await bcrypt.genSalt(10);
-        updateData.password = await bcrypt.hash(password, salt);
-      }
-
-      const updatedUser = await User.findByIdAndUpdate(
-        req.params.id,
-        updateData,
-        { new: true, select: '-password' }
-      );
+      const updatedUser = await userService.updateUser({
+        id: req.params.id,
+        authenticatedUserId: userInfo.id,
+        ...req.body
+      });
 
       res.json(updatedUser);
     } catch (error) {
-      res.status(500).json({ message: "Error updating user" });
+      res.status(error.status || 500).json({ message: error.message || "Error updating user" });
     }
   },
 
   deleteUser: async (req, res) => {
     try {
-      const userInfo = verifyToken(req);
+      const userInfo = getAuthenticatedUser(req);
       if (!userInfo) return res.status(401).json({ message: "Not authenticated" });
-      if (userInfo.id !== req.params.id) {
-        return res.status(403).json({ message: "Not authorized" });
-      }
 
-      await User.findByIdAndDelete(req.params.id);
+      const result = await userService.deleteUser({
+        id: req.params.id,
+        authenticatedUserId: userInfo.id
+      });
+
       res.clearCookie('token');
-      res.json({ message: "User deleted successfully" });
+      res.json(result);
     } catch (error) {
-      res.status(500).json({ message: "Error deleting user" });
+      res.status(error.status || 500).json({ message: error.message || "Error deleting user" });
     }
   },
 
   getUserProfile: async (req, res) => {
-    const userInfo = verifyToken(req);
-    if (!userInfo) return res.status(401).json({ message: "Not authenticated" });
-
     try {
-      const user = await User.findById(userInfo.id, { password: 0 });
+      const userInfo = getAuthenticatedUser(req);
+      if (!userInfo) return res.status(401).json({ message: "Not authenticated" });
+
+      const user = await userService.getUserProfile(userInfo.id);
       res.json(user);
     } catch (error) {
-      res.status(500).json({ message: "Error fetching profile" });
+      res.status(error.status || 500).json({ message: error.message || "Error fetching profile" });
     }
   }
 };

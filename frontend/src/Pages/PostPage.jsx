@@ -1,41 +1,16 @@
-import {useContext, useEffect, useState} from "react";
-import {useParams} from "react-router-dom";
-import {formatISO9075} from "date-fns";
-import {UserContext} from "../UserContext.jsx";
-import {Link} from 'react-router-dom';
-import {api, getCoverUrl} from '../api';
-import {useTheme} from "../ThemeContext.jsx";
-
-function PostPageSkeleton({ isDark }) {
-  const skeletonBg = isDark ? "rgba(255,255,255,0.06)" : "rgba(0,0,0,0.04)";
-  const dotBg = isDark ? "#404040" : "#d4d4d4";
-  return (
-    <article className="max-w-none animate-pulse" style={{ fontFamily: "'Instrument Sans', sans-serif" }}>
-      <header className="mb-12">
-        <div className="h-12 rounded-lg w-4/5 mb-6" style={{ backgroundColor: skeletonBg }}></div>
-        <div className="flex items-center gap-4 mb-6">
-          <div className="h-4 rounded-md w-32" style={{ backgroundColor: skeletonBg }}></div>
-          <div className="w-1 h-1 rounded-full" style={{ backgroundColor: dotBg }}></div>
-          <div className="h-4 rounded-md w-40" style={{ backgroundColor: skeletonBg }}></div>
-        </div>
-      </header>
-      <div className="mb-12 h-[350px] md:h-[450px] rounded-3xl" style={{ backgroundColor: skeletonBg }}></div>
-      <div className="space-y-4">
-        <div className="h-4 rounded-md w-full" style={{ backgroundColor: skeletonBg }}></div>
-        <div className="h-4 rounded-md w-full" style={{ backgroundColor: skeletonBg }}></div>
-        <div className="h-4 rounded-md w-3/4" style={{ backgroundColor: skeletonBg }}></div>
-        <div className="h-4 rounded-md w-full" style={{ backgroundColor: skeletonBg }}></div>
-        <div className="h-4 rounded-md w-5/6" style={{ backgroundColor: skeletonBg }}></div>
-      </div>
-    </article>
-  );
-}
+import { useContext, useEffect, useState } from "react";
+import { useParams, Link } from "react-router-dom";
+import { formatISO9075 } from "date-fns";
+import { UserContext } from "../UserContext.jsx";
+import { api, getCoverUrl } from '../api';
+import { useTheme } from "../ThemeContext.jsx";
+import PostPageSkeleton from "../components/skeletons/PostPageSkeleton.jsx";
 
 export default function PostPage() {
-  const [postInfo,setPostInfo] = useState(null);
-  const {userInfo} = useContext(UserContext);
-  const {id} = useParams();
-  const {theme} = useTheme();
+  const [postInfo, setPostInfo] = useState(null);
+  const { userInfo } = useContext(UserContext);
+  const { id } = useParams();
+  const { theme } = useTheme();
   const isDark = theme === 'dark';
   
   useEffect(() => {
@@ -104,7 +79,7 @@ export default function PostPage() {
             <span className="opacity-90">by {postInfo.author?.username || 'anonymous'}</span>
             <span className="w-1 h-1 rounded-full bg-neutral-400 dark:bg-neutral-600"></span>
             <time className="font-medium opacity-70">
-              {formatISO9075(new Date(postInfo.createdAt))}
+              {postInfo.createdAt ? formatISO9075(new Date(postInfo.createdAt)) : ''}
             </time>
           </div>
           
@@ -145,7 +120,7 @@ export default function PostPage() {
       <div 
         className="prose prose-lg max-w-none font-medium leading-relaxed dark:prose-invert"
         style={{ color: isDark ? '#d4d4d4' : '#404040' }}
-        dangerouslySetInnerHTML={{__html:postInfo.content}} 
+        dangerouslySetInnerHTML={{__html: postInfo.content || ''}} 
       />
 
       <footer className="mt-16 pt-8" style={{ borderTop: `1px solid ${isDark ? '#262626' : '#e5e5e5'}` }}>

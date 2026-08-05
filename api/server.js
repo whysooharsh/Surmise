@@ -20,6 +20,7 @@ const authRoutes = require('./Routes/authRoute');
 const blogRoutes = require('./Routes/blogRoute');
 const userRoutes = require('./Routes/userRoute');
 const connectDB = require('./config/db');
+const { corsOptions, allowedOrigins } = require('./config/cors');
 
 const app = express();
 
@@ -40,35 +41,7 @@ if (process.env.NODE_ENV === 'production') {
   app.set('trust proxy', 1);
 }
 
-const allowedOrigins = process.env.ALLOWED_ORIGINS 
-  ? process.env.ALLOWED_ORIGINS.split(',') 
-  : [
-      'https://surmise.vercel.app',
-      'http://localhost:5173',
-      'http://localhost:3000'            
-    ];
-
-app.use(cors({
-  credentials: true, 
-  origin: (origin, callback) => {
-    if (!origin) return callback(null, true);
-
-    const normalizedOrigin = origin.replace(/\/$/, '');
-    const normalizedAllowedOrigins = allowedOrigins.map(o => o.replace(/\/$/, ''));
-
-    if (normalizedAllowedOrigins.includes(normalizedOrigin) || 
-        normalizedOrigin.includes('vercel.app') || 
-        normalizedOrigin.includes('localhost')) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['set-cookie']
-}));
-
+app.use(cors(corsOptions));
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
